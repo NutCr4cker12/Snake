@@ -5,6 +5,7 @@ from src.Screen import create_screen, close
 from src.Enums import Key, SnakeMove
 from src.Snake import Snake
 
+
 class GameState:
 
     def __init__(self, window_width, window_height) -> None:
@@ -13,10 +14,51 @@ class GameState:
         self._move_speed = 0.5
         self._win_height = window_height
         self._win_width = window_width
-        self._snake = Snake(window_width=self._win_width, window_height=self._win_height)
+        self._snake = Snake(window_width=self._win_width,
+                            window_height=self._win_height)
         self._apple_pos = None
         self.score = 0
         self._create_new_apple_pos()
+
+    def set_keys(self) -> None:
+        """
+        Prompts and saves the arrow keys used to move the snake
+        """
+
+        def key_action(idx: int, key: int) -> None:
+            if idx == 0: Key.Left = key
+            elif idx == 1: Key.Right = key
+            elif idx == 2: Key.Up = key # reverted in purpose
+            elif idx == 3: Key.Down = key # reverted in purpose
+            else: raise "Invalid key"
+
+
+        key_prompts = ["LEFT", "RIGHT", "DOWN", "UP"]
+        for i in range(len(key_prompts)):
+            self._screen.addstr(self._win_height // 2 -
+                                1, 2, f"Key {i + 1} / 4")
+            self._screen.addstr(self._win_height // 2, 2,
+                                f"Press key for moving mouse {key_prompts[i]}...{' ':<10}")
+            self._screen.refresh()
+
+            key = self._screen.getch()
+            while key in Key.move_keys():
+                self._screen.addstr(self._win_height // 2 + 1, 2,
+                            f"Key is already assigned, please input a different one")
+                self._screen.refresh()
+                key = self._screen.getch()
+
+            key_action(i, key)
+
+
+            self._screen.addstr(self._win_height // 2, 2,
+                                f"Press key for moving mouse {key_prompts[i]}... {key}")
+            self._screen.addstr(self._win_height // 2 + 1, 2, f"{' ':<54}") # Remove the possible "key is already assigned..." message
+            self._screen.refresh()
+            time.sleep(1)
+
+        # When keys are set, set nodelay for key inputs
+        self._screen.nodelay(1)
 
     def run(self) -> None:
         exit = False
@@ -50,15 +92,17 @@ class GameState:
         close(self._screen)
 
     def _restart(self) -> bool:
-        self._screen.addstr(self._win_height // 2, 2, f"Press enter for new game, q to exit")
+        self._screen.addstr(self._win_height // 2, 2,
+                            f"Press enter for new game, q to exit")
         self._screen.refresh()
 
         key = self._screen.getch()
-        while key != ord('q') and key != Key.Enter.value:
+        while key != ord('q') and key != Key.Enter:
             key = self._screen.getch()
             time.sleep(0.1)
 
-        self._snake = Snake(window_width=self._win_width, window_height=self._win_height)
+        self._snake = Snake(window_width=self._win_width,
+                            window_height=self._win_height)
         self._apple_pos = None
         self.score = 0
         self._create_new_apple_pos()
@@ -81,7 +125,8 @@ class GameState:
         for (x, y) in self._snake.positions:
             self._screen.addstr(y + 1, x + 1, "#")
 
-        self._screen.addstr(self._apple_pos[1] + 1, self._apple_pos[0] + 1, "o")
+        self._screen.addstr(
+            self._apple_pos[1] + 1, self._apple_pos[0] + 1, "o")
 
         self._screen.refresh()
 
@@ -90,18 +135,19 @@ class GameState:
         while time.time() - start_time < self._move_speed:
             key = self._screen.getch()
             # Check if key is one direction keys
-            if key in Key._value2member_map_:
+            if key in Key.move_keys():
                 # Convert key into direction
                 dir = Key.to_direction(key)
                 # Apply to direction change
                 self._snake.set_direction(dir)
-            
+
             time.sleep(0.05)
 
     def _create_new_apple_pos(self) -> None:
         worm_positions = self._snake.positions
         while True:
-            self._apple_pos = (random.randint(0, self._win_width - 2), random.randint(0, self._win_height - 2))
+            self._apple_pos = (random.randint(
+                0, self._win_width - 2), random.randint(0, self._win_height - 2))
             if self._apple_pos not in worm_positions:
                 return
 

@@ -6,23 +6,29 @@ class Direction(Enum):
     Right = "Right"
     Up = "Up"
 
-class Key(Enum):
-    Left = 452
-    Down = 450 # reverted in purpose
-    Right = 454
-    Up = 456
+
+
+class Key:
+    Left = -1
+    Down = -1
+    Right = -1
+    Up = -1
     Enter = 10
+    
+    @staticmethod
+    def move_keys() -> list:
+        return [Key.Left, Key.Down, Key.Right, Key.Up]
 
     @staticmethod
     def to_direction(key) -> Direction:
-        if key not in Key._value2member_map_:
+        if key not in Key.move_keys():
             raise Exception(f"Unable to convert key into direction: {key = }")
 
         return {
-            Key.Left.value: Direction.Left,
-            Key.Down.value: Direction.Down,
-            Key.Right.value: Direction.Right,
-            Key.Up.value: Direction.Up
+            Key.Left: Direction.Left,
+            Key.Down: Direction.Down,
+            Key.Right: Direction.Right,
+            Key.Up: Direction.Up
         }[key]
 
 class SnakeMove(Enum):
