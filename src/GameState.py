@@ -55,7 +55,7 @@ class GameState:
                                 f"Press key for moving mouse {key_prompts[i]}... {key}")
             self._screen.addstr(self._win_height // 2 + 1, 2, f"{' ':<54}") # Remove the possible "key is already assigned..." message
             self._screen.refresh()
-            time.sleep(1)
+            time.sleep(0.5)
 
         # When keys are set, set nodelay for key inputs
         self._screen.nodelay(1)
@@ -140,6 +140,7 @@ class GameState:
                 dir = Key.to_direction(key)
                 # Apply to direction change
                 self._snake.set_direction(dir)
+                break
 
             time.sleep(0.05)
 
